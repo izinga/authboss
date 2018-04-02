@@ -13,8 +13,8 @@ import (
 	"strings"
 
 	"golang.org/x/oauth2"
-	"github.com/volatiletech/authboss"
-	"github.com/volatiletech/authboss/internal/response"
+	"gopkg.in/authboss.v1"
+	"gopkg.in/authboss.v1/internal/response"
 )
 
 var (
@@ -56,12 +56,17 @@ func (o *OAuth2) Routes() authboss.RouteTable {
 			callback = path.Join(o.MountPath, callback)
 		}
 
-		cfg.OAuth2Config.RedirectURL = o.RootURL + callback
+		cfg.OAuth2Config.RedirectURL = callback
 	}
 
 	routes["/oauth2/logout"] = o.logout
 
 	return routes
+}
+
+//getRootUrl get root url
+func (o *OAuth2) getRootUrl() string {
+	return o.RootURL
 }
 
 // Storage requirements
@@ -77,8 +82,17 @@ func (o *OAuth2) Storage() authboss.StorageOptions {
 }
 
 func (o *OAuth2) oauthInit(ctx *authboss.Context, w http.ResponseWriter, r *http.Request) error {
+
+	temp := strings.Split(r.Proto, "/")
+	protocal := "http"
+	if len(temp) > 1 {
+		protocal = strings.ToLower(temp[0])
+	}
+	o.RootURL = protocal + "://" + r.Host
+
 	provider := strings.ToLower(filepath.Base(r.URL.Path))
 	cfg, ok := o.OAuth2Providers[provider]
+	cfg.OAuth2Config.RedirectURL = o.RootURL + cfg.OAuth2Config.RedirectURL
 	if !ok {
 		return fmt.Errorf("OAuth2 provider %q not found", provider)
 	}
@@ -193,6 +207,7 @@ func (o *OAuth2) oauthCallback(ctx *authboss.Context, w http.ResponseWriter, r *
 	}
 
 	if err = ctx.OAuth2Storer.PutOAuth(uid, provider, user); err != nil {
+		fmt.Println(" We got error here ", err)
 		return err
 	}
 

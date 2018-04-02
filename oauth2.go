@@ -35,6 +35,7 @@ database/driver.Valuer.
 */
 type OAuth2Provider struct {
 	OAuth2Config     *oauth2.Config
+	RootURL          string
 	AdditionalParams url.Values
 	Callback         func(context.Context, oauth2.Config, *oauth2.Token) (Attributes, error)
 }

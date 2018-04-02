@@ -7,14 +7,17 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
+	"nerve/model"
+	emailClient "nerve/util/email"
 	"net/http"
 	"net/url"
 	"path"
 	"time"
 
-	"github.com/volatiletech/authboss"
-	"github.com/volatiletech/authboss/internal/response"
+	log "github.com/Sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
+	"gopkg.in/authboss.v1"
+	"gopkg.in/authboss.v1/internal/response"
 )
 
 // Storage constants
@@ -160,20 +163,23 @@ func (rec *Recover) startHandlerFunc(ctx *authboss.Context, w http.ResponseWrite
 		if err != nil {
 			return err
 		}
-
+		userName, err := ctx.User.StringErr("name")
+		if err != nil {
+			return err
+		}
 		encodedToken, encodedChecksum, err := newToken()
 		if err != nil {
 			return err
 		}
 
 		ctx.User[StoreRecoverToken] = encodedChecksum
-		ctx.User[StoreRecoverTokenExpiry] = time.Now().Add(rec.RecoverTokenDuration)
+		ctx.User[StoreRecoverTokenExpiry] = time.Now().Add(24 * 7 * time.Hour)
 
 		if err := ctx.SaveUser(); err != nil {
 			return err
 		}
 
-		goRecoverEmail(rec, ctx, email, encodedToken)
+		goRecoverEmail(rec, ctx, email, userName, encodedToken)
 
 		ctx.SessionStorer.Put(authboss.FlashSuccessKey, recoverInitiateSuccessFlash)
 		response.Redirect(ctx, w, r, rec.RecoverOKPath, "", "", true)
@@ -194,36 +200,51 @@ func newToken() (encodedToken, encodedChecksum string, err error) {
 	return base64.URLEncoding.EncodeToString(token), base64.StdEncoding.EncodeToString(sum[:]), nil
 }
 
-var goRecoverEmail = func(r *Recover, ctx *authboss.Context, to, encodedToken string) {
+var goRecoverEmail = func(r *Recover, ctx *authboss.Context, to, userName, encodedToken string) {
 	if ctx.MailMaker != nil {
-		r.sendRecoverEmail(ctx, to, encodedToken)
+		go r.sendRecoverEmail(ctx, to, userName, encodedToken)
 	} else {
-		go r.sendRecoverEmail(ctx, to, encodedToken)
+		go r.sendRecoverEmail(ctx, to, userName, encodedToken)
 	}
 }
 
-func (r *Recover) sendRecoverEmail(ctx *authboss.Context, to, encodedToken string) {
+func (r *Recover) sendRecoverEmail(ctx *authboss.Context, to, userName, encodedToken string) {
 	p := path.Join(r.MountPath, "recover/complete")
 	query := url.Values{formValueToken: []string{encodedToken}}
 	url := fmt.Sprintf("%s%s?%s", r.RootURL, p, query.Encode())
-
-	email := authboss.Email{
-		To:       []string{to},
-		From:     r.EmailFrom,
-		FromName: r.EmailFromName,
-		Subject:  r.EmailSubjectPrefix + "Password Reset",
+	emailClient.SetConfig()
+	emailObj := model.Email{
+		Sender:        emailClient.EmailConfig["sender"],
+		Created:       time.Now(),
+		Subject:       "[RobusTest] ",
+		Type:          "resetConfirmation",
+		RecipientName: userName,
+		Recipients:    []string{to},
 	}
-
-	if err := response.Email(ctx.Mailer, email, r.emailHTMLTemplates, tplInitHTMLEmail, r.emailTextTemplates, tplInitTextEmail, url); err != nil {
-		fmt.Fprintln(ctx.LogWriter, "recover: failed to send recover email:", err)
+	emailObj.Subject = emailObj.Subject + "Password Reset"
+	emailObj.Body, _ = emailClient.PasswordResetTemplate(userName, url)
+	err := emailClient.Send(emailObj)
+	if err != nil {
+		log.Error("Unable to send password recovery email ", err)
 	}
+	// email := authboss.Email{
+	// 	To:      []string{to},
+	// 	From:    r.EmailFrom,
+	// 	Subject: r.EmailSubjectPrefix + "Password Reset",
+	// }
+
+	// if err := response.Email(ctx.Mailer, email, r.emailHTMLTemplates, tplInitHTMLEmail, r.emailTextTemplates, tplInitTextEmail, url); err != nil {
+	// 	fmt.Fprintln(ctx.LogWriter, "recover: failed to send recover email:", err)
+	// }
 }
 
 func (r *Recover) completeHandlerFunc(ctx *authboss.Context, w http.ResponseWriter, req *http.Request) (err error) {
 	switch req.Method {
 	case methodGET:
 		_, err = verifyToken(ctx, req)
+
 		if err == errRecoveryTokenExpired {
+
 			return authboss.ErrAndRedirect{Err: err, Location: "/recover", FlashError: recoverTokenExpiredFlash}
 		} else if err != nil {
 			return authboss.ErrAndRedirect{Err: err, Location: "/"}
@@ -235,41 +256,49 @@ func (r *Recover) completeHandlerFunc(ctx *authboss.Context, w http.ResponseWrit
 	case methodPOST:
 		token := req.FormValue(formValueToken)
 		if len(token) == 0 {
+			fmt.Println("error token is not found ", token)
 			return authboss.ClientDataErr{Name: formValueToken}
 		}
 
 		password := req.FormValue(authboss.StorePassword)
+
 		//confirmPassword, _ := ctx.FirstPostFormValue("confirmPassword")
 
-		policies := authboss.FilterValidators(r.Policies, authboss.StorePassword)
-		if validationErrs := authboss.Validate(req, policies, authboss.StorePassword, authboss.ConfirmPrefix+authboss.StorePassword).Map(); len(validationErrs) > 0 {
-			data := authboss.NewHTMLData(
-				formValueToken, token,
-				"errs", validationErrs,
-			)
-			return r.templates.Render(ctx, w, req, tplRecoverComplete, data)
-		}
+		// policies := authboss.FilterValidators(r.Policies, authboss.StorePassword)
+		// if validationErrs := authboss.Validate(req, policies, authboss.StorePassword, authboss.ConfirmPrefix+authboss.StorePassword).Map(); len(validationErrs) > 0 {
+		// 	data := authboss.NewHTMLData(
+		// 		formValueToken, token,
+		// 		"errs", validationErrs,
+		// 	)
+		// 	fmt.Println("error in passwrd validationErrs ", token)
+		// 	return r.templates.Render(ctx, w, req, tplRecoverComplete, data)
+		// }
 
 		if ctx.User, err = verifyToken(ctx, req); err != nil {
+			fmt.Println(" Error in verify ", err)
 			return err
 		}
 
 		encryptedPassword, err := bcrypt.GenerateFromPassword([]byte(password), r.BCryptCost)
 		if err != nil {
+			fmt.Println(" Error in encryptedPassword ", err)
 			return err
 		}
 
 		ctx.User[authboss.StorePassword] = string(encryptedPassword)
 		ctx.User[StoreRecoverToken] = ""
+		ctx.User["confirmed"] = true
 		var nullTime time.Time
 		ctx.User[StoreRecoverTokenExpiry] = nullTime
 
 		primaryID, err := ctx.User.StringErr(r.PrimaryID)
 		if err != nil {
+			fmt.Println(" Error in getting user primaryID ", err)
 			return err
 		}
 
 		if err := ctx.SaveUser(); err != nil {
+			fmt.Println(" Error in getting saving ", err)
 			return err
 		}
 
@@ -280,7 +309,17 @@ func (r *Recover) completeHandlerFunc(ctx *authboss.Context, w http.ResponseWrit
 		if r.Authboss.AllowLoginAfterResetPassword {
 			ctx.SessionStorer.Put(authboss.SessionKey, primaryID)
 		}
-		response.Redirect(ctx, w, req, r.AuthLoginOKPath, "", "", true)
+		// Send password changed mail
+		userEmail, err := ctx.User.StringErr(authboss.StoreEmail)
+		if err != nil {
+			return err
+		}
+		userName, err := ctx.User.StringErr("name")
+		if err != nil {
+			return err
+		}
+		go sendPasswordChangeMail(userName, userEmail)
+		response.Redirect(ctx, w, req, r.AuthLoginFailPath, "", "", true)
 	default:
 		w.WriteHeader(http.StatusMethodNotAllowed)
 	}
@@ -305,6 +344,7 @@ func verifyToken(ctx *authboss.Context, r *http.Request) (attrs authboss.Attribu
 
 	userInter, err := storer.RecoverUser(base64.StdEncoding.EncodeToString(sum[:]))
 	if err != nil {
+		fmt.Println("Error in userInter ", err)
 		return nil, err
 	}
 
@@ -312,8 +352,27 @@ func verifyToken(ctx *authboss.Context, r *http.Request) (attrs authboss.Attribu
 
 	expiry, ok := attrs.DateTime(StoreRecoverTokenExpiry)
 	if !ok || time.Now().After(expiry) {
+		fmt.Println("Error in expiry ", err)
 		return nil, errRecoveryTokenExpired
 	}
-
+	fmt.Println("verifyToken is completed ", attrs)
 	return attrs, nil
+}
+
+func sendPasswordChangeMail(userName string, userEmail string) {
+	emailClient.SetConfig()
+	emailObj := model.Email{
+		Sender:        emailClient.EmailConfig["sender"],
+		Created:       time.Now(),
+		Subject:       "[RobusTest]",
+		Type:          "resetConfirmation",
+		RecipientName: userName,
+		Recipients:    []string{userEmail},
+	}
+	emailObj.Subject = emailObj.Subject + "Your password has been reset"
+	emailObj.Body, _ = emailClient.PasswordResetConfirmationTemplate(userName, "")
+	err := emailClient.Send(emailObj)
+	if err != nil {
+		log.Error("Unable to send password recovery email ", err)
+	}
 }

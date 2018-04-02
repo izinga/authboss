@@ -3,11 +3,12 @@ package register
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 
 	"golang.org/x/crypto/bcrypt"
-	"github.com/volatiletech/authboss"
-	"github.com/volatiletech/authboss/internal/response"
+	"gopkg.in/authboss.v1"
+	"gopkg.in/authboss.v1/internal/response"
 )
 
 const (
@@ -137,6 +138,7 @@ func (reg *Register) registerPostHandler(ctx *authboss.Context, w http.ResponseW
 
 		return reg.templates.Render(ctx, w, r, tplRegister, data)
 	} else if err != nil {
+		fmt.Println(" We got error here ", err)
 		return err
 	}
 

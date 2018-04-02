@@ -10,7 +10,7 @@ import (
 	"errors"
 	"fmt"
 
-	"github.com/volatiletech/authboss"
+	"gopkg.in/authboss.v1"
 )
 
 const (

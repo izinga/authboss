@@ -18,6 +18,7 @@ var (
 type Context struct {
 	*Authboss
 
+	RootURL       string
 	SessionStorer ClientStorerErr
 	CookieStorer  ClientStorerErr
 	User          Attributes

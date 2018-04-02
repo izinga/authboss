@@ -15,7 +15,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/volatiletech/authboss"
+	"gopkg.in/authboss.v1"
 )
 
 var (

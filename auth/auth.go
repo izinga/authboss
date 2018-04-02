@@ -7,8 +7,8 @@ import (
 	"net/http"
 
 	"golang.org/x/crypto/bcrypt"
-	"github.com/volatiletech/authboss"
-	"github.com/volatiletech/authboss/internal/response"
+	"gopkg.in/authboss.v1"
+	"gopkg.in/authboss.v1/internal/response"
 )
 
 const (
@@ -81,8 +81,8 @@ func (a *Auth) loginHandlerFunc(ctx *authboss.Context, w http.ResponseWriter, r 
 		return a.templates.Render(ctx, w, r, tplLogin, data)
 	case methodPOST:
 		key := r.FormValue(a.PrimaryID)
-		password := r.FormValue("password")
-
+		password := r.FormValue("secrete")
+		fmt.Println("We are here in post with password ", password)
 		errData := authboss.NewHTMLData(
 			"error", fmt.Sprintf("invalid %s and/or password", a.PrimaryID),
 			"primaryID", a.PrimaryID,
@@ -93,18 +93,21 @@ func (a *Auth) loginHandlerFunc(ctx *authboss.Context, w http.ResponseWriter, r 
 		)
 
 		if valid, err := validateCredentials(ctx, key, password); err != nil {
+
 			errData["error"] = "Internal server error"
 			fmt.Fprintf(ctx.LogWriter, "auth: validate credentials failed: %v\n", err)
 			return a.templates.Render(ctx, w, r, tplLogin, errData)
 		} else if !valid {
+			fmt.Println("We are here in post with valid ", valid)
 			if err := a.Callbacks.FireAfter(authboss.EventAuthFail, ctx); err != nil {
 				fmt.Fprintf(ctx.LogWriter, "EventAuthFail callback error'd out: %v\n", err)
 			}
 			return a.templates.Render(ctx, w, r, tplLogin, errData)
 		}
-
 		interrupted, err := a.Callbacks.FireBefore(authboss.EventAuth, ctx)
 		if err != nil {
+			fmt.Println("We are here in post with interrupted ", interrupted)
+			fmt.Println("We are here in post with err ", err)
 			return err
 		} else if interrupted != authboss.InterruptNone {
 			var reason string
@@ -114,10 +117,12 @@ func (a *Auth) loginHandlerFunc(ctx *authboss.Context, w http.ResponseWriter, r 
 			case authboss.InterruptAccountNotConfirmed:
 				reason = "Your account has not been confirmed."
 			}
+			fmt.Println("We are here in post with interrupted ", interrupted)
 			response.Redirect(ctx, w, r, a.AuthLoginFailPath, "", reason, false)
 			return nil
 		}
 
+		fmt.Println("We are here in post with key ", key)
 		ctx.SessionStorer.Put(authboss.SessionKey, key)
 		ctx.SessionStorer.Del(authboss.SessionHalfAuthKey)
 		ctx.Values = map[string]string{authboss.CookieRemember: r.FormValue(authboss.CookieRemember)}

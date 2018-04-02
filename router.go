@@ -47,7 +47,14 @@ type contextRoute struct {
 
 func (c contextRoute) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Instantiate the context
+	fmt.Println("We are routing ")
 	ctx := c.Authboss.InitContext(w, r)
+	temp := strings.Split(r.Proto, "/")
+	protocal := "http"
+	if len(temp) > 1 {
+		protocal = strings.ToLower(temp[0])
+	}
+	c.Authboss.RootURL = protocal + "://" + r.Host
 
 	// Check to make sure we actually need to visit this route
 	if redirectIfLoggedIn(ctx, w, r) {

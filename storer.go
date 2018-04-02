@@ -18,7 +18,7 @@ import (
 const (
 	StoreEmail    = "email"
 	StoreUsername = "username"
-	StorePassword = "password"
+	StorePassword = "secrete"
 )
 
 // Data store constants for OAuth2 attribute names.
