@@ -5,7 +5,7 @@ import (
 	"errors"
 	"time"
 
-	"gopkg.in/authboss.v1"
+	"github.com/izinga/authboss"
 )
 
 // Storage key constants

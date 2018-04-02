@@ -16,8 +16,8 @@ import (
 
 	log "github.com/Sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
-	"gopkg.in/authboss.v1"
-	"gopkg.in/authboss.v1/internal/response"
+	"github.com/izinga/authboss"
+	"github.com/izinga/authboss/internal/response"
 )
 
 // Storage constants
