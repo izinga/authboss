@@ -3,6 +3,7 @@ package register
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"os"
 
@@ -89,8 +90,11 @@ func (reg *Register) registerPostHandler(ctx *authboss.Context, w http.ResponseW
 	key := r.FormValue(reg.PrimaryID)
 	password := r.FormValue("password")
 
-	validationErrs := authboss.Validate(r, reg.Policies, reg.ConfirmFields...)
+	validationErrs := authboss.Validate(r, reg.Policies, []string{
+		"password", "confirm_password",
+	}...)
 
+	fmt.Printf("\n\n validationErrs.Map() %+v \n", validationErrs.Map())
 	if user, err := ctx.Storer.Get(key); err != nil && err != authboss.ErrUserNotFound {
 		return err
 	} else if user != nil {
@@ -98,6 +102,7 @@ func (reg *Register) registerPostHandler(ctx *authboss.Context, w http.ResponseW
 	}
 
 	if len(validationErrs) != 0 {
+		fmt.Printf("\n\n validationErrs.Map() %+v \n", validationErrs.Map())
 		data := authboss.HTMLData{
 			"primaryID":      reg.PrimaryID,
 			"primaryIDValue": key,
@@ -107,10 +112,9 @@ func (reg *Register) registerPostHandler(ctx *authboss.Context, w http.ResponseW
 		for _, f := range reg.PreserveFields {
 			data[f] = r.FormValue(f)
 		}
-
+		fmt.Printf("\n\n data %+v \n", data)
 		return reg.templates.Render(ctx, w, r, tplRegister, data)
 	}
-
 	attr, err := authboss.AttributesFromRequest(r) // Attributes from overriden forms
 	if err != nil {
 		return err
