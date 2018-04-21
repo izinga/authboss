@@ -82,7 +82,6 @@ func (a *Auth) loginHandlerFunc(ctx *authboss.Context, w http.ResponseWriter, r 
 	case methodPOST:
 		key := r.FormValue(a.PrimaryID)
 		password := r.FormValue("secrete")
-		fmt.Println("We are here in post with password ", password)
 		errData := authboss.NewHTMLData(
 			"error", fmt.Sprintf("invalid %s and/or password", a.PrimaryID),
 			"primaryID", a.PrimaryID,
