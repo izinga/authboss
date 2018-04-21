@@ -3,12 +3,11 @@ package register
 
 import (
 	"errors"
-	"fmt"
 	"net/http"
 
-	"golang.org/x/crypto/bcrypt"
 	"github.com/izinga/authboss"
 	"github.com/izinga/authboss/internal/response"
+	"golang.org/x/crypto/bcrypt"
 )
 
 const (
@@ -87,7 +86,7 @@ func (reg *Register) registerHandler(ctx *authboss.Context, w http.ResponseWrite
 
 func (reg *Register) registerPostHandler(ctx *authboss.Context, w http.ResponseWriter, r *http.Request) error {
 	key := r.FormValue(reg.PrimaryID)
-	password := r.FormValue(authboss.StorePassword)
+	password := r.FormValue("password")
 
 	validationErrs := authboss.Validate(r, reg.Policies, reg.ConfirmFields...)
 
@@ -116,13 +115,14 @@ func (reg *Register) registerPostHandler(ctx *authboss.Context, w http.ResponseW
 		return err
 	}
 
-	pass, err := bcrypt.GenerateFromPassword([]byte(password), reg.BCryptCost)
+	pass, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 	if err != nil {
 		return err
 	}
 
 	attr[reg.PrimaryID] = key
 	attr[authboss.StorePassword] = string(pass)
+
 	ctx.User = attr
 
 	if err := ctx.Storer.(RegisterStorer).Create(key, attr); err == authboss.ErrUserFound {
@@ -138,7 +138,6 @@ func (reg *Register) registerPostHandler(ctx *authboss.Context, w http.ResponseW
 
 		return reg.templates.Render(ctx, w, r, tplRegister, data)
 	} else if err != nil {
-		fmt.Println(" We got error here ", err)
 		return err
 	}
 

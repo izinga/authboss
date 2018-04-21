@@ -15,9 +15,9 @@ import (
 	"time"
 
 	log "github.com/Sirupsen/logrus"
-	"golang.org/x/crypto/bcrypt"
 	"github.com/izinga/authboss"
 	"github.com/izinga/authboss/internal/response"
+	"golang.org/x/crypto/bcrypt"
 )
 
 // Storage constants
@@ -138,19 +138,19 @@ func (rec *Recover) startHandlerFunc(ctx *authboss.Context, w http.ResponseWrite
 		return rec.templates.Render(ctx, w, r, tplRecover, data)
 	case methodPOST:
 		primaryID := r.FormValue(rec.PrimaryID)
-		confirmPrimaryID := r.FormValue(fmt.Sprintf("confirm_%s", rec.PrimaryID))
+		// confirmPrimaryID := r.FormValue(fmt.Sprintf("confirm_%s", rec.PrimaryID))
 
-		errData := authboss.NewHTMLData(
-			"primaryID", rec.PrimaryID,
-			"primaryIDValue", primaryID,
-			"confirmPrimaryIDValue", confirmPrimaryID,
-		)
+		// errData := authboss.NewHTMLData(
+		// 	"primaryID", rec.PrimaryID,
+		// 	"primaryIDValue", primaryID,
+		// 	// "confirmPrimaryIDValue", confirmPrimaryID,
+		// )
 
-		policies := authboss.FilterValidators(rec.Policies, rec.PrimaryID)
-		if validationErrs := authboss.Validate(r, policies, rec.PrimaryID, authboss.ConfirmPrefix+rec.PrimaryID).Map(); len(validationErrs) > 0 {
-			errData.MergeKV("errs", validationErrs)
-			return rec.templates.Render(ctx, w, r, tplRecover, errData)
-		}
+		// policies := authboss.FilterValidators(rec.Policies, rec.PrimaryID)
+		// if validationErrs := authboss.Validate(r, policies, rec.PrimaryID, authboss.ConfirmPrefix+rec.PrimaryID).Map(); len(validationErrs) > 0 {
+		// 	errData.MergeKV("errs", validationErrs)
+		// 	return rec.templates.Render(ctx, w, r, tplRecover, errData)
+		// }
 
 		// redirect to login when user not found to prevent username sniffing
 		if err := ctx.LoadUser(primaryID); err == authboss.ErrUserNotFound {
@@ -278,8 +278,7 @@ func (r *Recover) completeHandlerFunc(ctx *authboss.Context, w http.ResponseWrit
 			fmt.Println(" Error in verify ", err)
 			return err
 		}
-
-		encryptedPassword, err := bcrypt.GenerateFromPassword([]byte(password), r.BCryptCost)
+		encryptedPassword, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
 		if err != nil {
 			fmt.Println(" Error in encryptedPassword ", err)
 			return err

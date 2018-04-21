@@ -6,9 +6,9 @@ import (
 	"fmt"
 	"net/http"
 
-	"golang.org/x/crypto/bcrypt"
 	"github.com/izinga/authboss"
 	"github.com/izinga/authboss/internal/response"
+	"golang.org/x/crypto/bcrypt"
 )
 
 const (
@@ -147,10 +147,13 @@ func validateCredentials(ctx *authboss.Context, key, password string) (bool, err
 
 	actualPassword, err := ctx.User.StringErr(authboss.StorePassword)
 	if err != nil {
+		fmt.Println(" Error in actualPassword ", err)
 		return false, err
 	}
 
 	if err := bcrypt.CompareHashAndPassword([]byte(actualPassword), []byte(password)); err != nil {
+
+		fmt.Println(" Error in CompareHashAndPassword ", err)
 		return false, nil
 	}
 

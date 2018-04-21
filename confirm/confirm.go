@@ -10,6 +10,7 @@ import (
 	"nerve/model"
 	"net/http"
 	"net/url"
+	"os"
 	"path"
 	"time"
 
@@ -67,15 +68,6 @@ func (c *Confirm) Initialize(ab *authboss.Authboss) (err error) {
 		return errors.New("confirm: Need a ConfirmStorer")
 	}
 
-	c.emailHTMLTemplates, err = response.LoadTemplates(ab, c.LayoutHTMLEmail, c.ViewsPath, tplConfirmHTML)
-	if err != nil {
-		return err
-	}
-	c.emailTextTemplates, err = response.LoadTemplates(ab, c.LayoutTextEmail, c.ViewsPath, tplConfirmText)
-	if err != nil {
-		return err
-	}
-
 	c.Callbacks.After(authboss.EventGetUser, func(ctx *authboss.Context) error {
 		_, err := c.beforeGet(ctx)
 		return err
@@ -125,12 +117,6 @@ func (c *Confirm) afterRegister(ctx *authboss.Context) error {
 	}
 	sum := md5.Sum(token)
 
-	ctx.User[StoreConfirmToken] = base64.StdEncoding.EncodeToString(sum[:])
-
-	if err := ctx.SaveUser(); err != nil {
-		return err
-	}
-
 	userEmail, err := ctx.User.StringErr(authboss.StoreEmail)
 	if err != nil {
 		return err
@@ -139,38 +125,26 @@ func (c *Confirm) afterRegister(ctx *authboss.Context) error {
 	if err != nil {
 		return err
 	}
-	p := path.Join(ctx.MountPath, "confirm")
-	url := fmt.Sprintf("%s%s?%s=%s", c.RootURL, p, url.QueryEscape(FormValueConfirm), url.QueryEscape(base64.URLEncoding.EncodeToString(token)))
+	if os.Getenv("enable_activatation") == "no" {
+		ctx.User[StoreConfirmToken] = ""
+		ctx.User[StoreConfirmed] = true
+		if err := ctx.SaveUser(); err != nil {
+			return err
+		}
+		go sendWelcome(userName, userEmail)
 
-	go sendConfirmationLink(userName, userEmail, url)
-	// goConfirmEmail(c, ctx, userEmail, base64.URLEncoding.EncodeToString(token))
+	} else {
+		ctx.User[StoreConfirmToken] = base64.StdEncoding.EncodeToString(sum[:])
+		if err := ctx.SaveUser(); err != nil {
+			return err
+		}
+		p := path.Join(ctx.MountPath, "confirm")
+		url := fmt.Sprintf("%s%s?%s=%s", c.RootURL, p, url.QueryEscape(FormValueConfirm), url.QueryEscape(base64.URLEncoding.EncodeToString(token)))
+
+		go sendConfirmationLink(userName, userEmail, url)
+	}
 
 	return nil
-}
-
-var goConfirmEmail = func(c *Confirm, ctx *authboss.Context, to, token string) {
-	if ctx.MailMaker != nil {
-		c.confirmEmail(ctx, to, token)
-	} else {
-		go c.confirmEmail(ctx, to, token)
-	}
-}
-
-// confirmEmail sends a confirmation e-mail.
-func (c *Confirm) confirmEmail(ctx *authboss.Context, to, token string) {
-	p := path.Join(c.MountPath, "confirm")
-	url := fmt.Sprintf("%s%s?%s=%s", c.RootURL, p, url.QueryEscape(FormValueConfirm), url.QueryEscape(token))
-
-	email := authboss.Email{
-		To:      []string{to},
-		From:    c.EmailFrom,
-		Subject: c.EmailSubjectPrefix + "Confirm New Account",
-	}
-
-	err := response.Email(ctx.Mailer, email, c.emailHTMLTemplates, tplConfirmHTML, c.emailTextTemplates, tplConfirmText, url)
-	if err != nil {
-		fmt.Fprintf(ctx.LogWriter, "confirm: Failed to send e-mail: %v", err)
-	}
 }
 
 func (c *Confirm) confirmHandler(ctx *authboss.Context, w http.ResponseWriter, r *http.Request) error {
@@ -226,7 +200,26 @@ func (c *Confirm) confirmHandler(ctx *authboss.Context, w http.ResponseWriter, r
 	return nil
 }
 
-// send confirmation link mail
+//sendWelcome  send confirmation link mail
+func sendWelcome(userName string, userEmail string) {
+	emailClient.SetConfig()
+	emailObj := model.Email{
+		Sender:        emailClient.EmailConfig["sender"],
+		Created:       time.Now(),
+		Subject:       "[RobusTest] ",
+		Type:          "confirmation",
+		RecipientName: userName,
+		Recipients:    []string{userEmail},
+	}
+	emailObj.Subject = emailObj.Subject + "Welcome to RobusTest"
+	emailObj.Body, _ = emailClient.UserWelcomeWithoutConfimTemplate(userName)
+	err := emailClient.Send(emailObj)
+	if err != nil {
+		log.Error("Unable to send password recovery email ", err)
+	}
+}
+
+//sendConfirmationLink send confirmation link mail
 func sendConfirmationLink(userName string, userEmail string, link string) {
 	emailClient.SetConfig()
 	emailObj := model.Email{

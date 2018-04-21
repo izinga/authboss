@@ -141,7 +141,7 @@ func (a *Authboss) UpdatePassword(w http.ResponseWriter, r *http.Request,
 	updatePwd := len(ptPassword) > 0
 
 	if updatePwd {
-		pass, err := bcrypt.GenerateFromPassword([]byte(ptPassword), a.BCryptCost)
+		pass, err := bcrypt.GenerateFromPassword([]byte(ptPassword), bcrypt.DefaultCost)
 		if err != nil {
 			return err
 		}
