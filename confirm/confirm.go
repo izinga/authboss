@@ -125,7 +125,7 @@ func (c *Confirm) afterRegister(ctx *authboss.Context) error {
 	if err != nil {
 		return err
 	}
-	if os.Getenv("enable_activatation") == "no" {
+	if os.Getenv("confirmable") == "no" {
 		ctx.User[StoreConfirmToken] = ""
 		ctx.User[StoreConfirmed] = true
 		if err := ctx.SaveUser(); err != nil {

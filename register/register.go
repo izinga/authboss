@@ -4,6 +4,7 @@ package register
 import (
 	"errors"
 	"net/http"
+	"os"
 
 	"github.com/izinga/authboss"
 	"github.com/izinga/authboss/internal/response"
@@ -145,7 +146,7 @@ func (reg *Register) registerPostHandler(ctx *authboss.Context, w http.ResponseW
 		return err
 	}
 
-	if reg.IsLoaded("confirm") {
+	if reg.IsLoaded("confirm") && os.Getenv("confirmable") == "yes" {
 		response.Redirect(ctx, w, r, reg.RegisterOKPath, "Account successfully created, please verify your e-mail address.", "", true)
 		return nil
 	}
