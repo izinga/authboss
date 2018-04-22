@@ -12,9 +12,9 @@ import (
 	"path/filepath"
 	"strings"
 
-	"golang.org/x/oauth2"
 	"github.com/izinga/authboss"
 	"github.com/izinga/authboss/internal/response"
+	"golang.org/x/oauth2"
 )
 
 var (
@@ -92,7 +92,10 @@ func (o *OAuth2) oauthInit(ctx *authboss.Context, w http.ResponseWriter, r *http
 
 	provider := strings.ToLower(filepath.Base(r.URL.Path))
 	cfg, ok := o.OAuth2Providers[provider]
-	cfg.OAuth2Config.RedirectURL = o.RootURL + cfg.OAuth2Config.RedirectURL
+	if !strings.Contains(cfg.OAuth2Config.RedirectURL, o.RootURL) {
+		cfg.OAuth2Config.RedirectURL = o.RootURL + cfg.OAuth2Config.RedirectURL
+	}
+
 	if !ok {
 		return fmt.Errorf("OAuth2 provider %q not found", provider)
 	}
@@ -208,7 +211,10 @@ func (o *OAuth2) oauthCallback(ctx *authboss.Context, w http.ResponseWriter, r *
 
 	if err = ctx.OAuth2Storer.PutOAuth(uid, provider, user); err != nil {
 		fmt.Println(" We got error here ", err)
-		return err
+
+		sf := "Sign in Failed. Try signing in with email address of an authorised domain."
+		response.Redirect(ctx, w, r, o.AuthLoginOKPath, sf, "", false)
+		return nil
 	}
 
 	// Fully log user in
