@@ -40,9 +40,9 @@ const (
 	tplInitHTMLEmail   = "recover_email.html.tpl"
 	tplInitTextEmail   = "recover_email.txt.tpl"
 
-	recoverInitiateSuccessFlash = "An email has been sent with further instructions on how to reset your password"
-	recoverTokenExpiredFlash    = "Account recovery request has expired. Please try again."
-	recoverFailedErrorFlash     = "Account recovery has failed. Please contact tech support."
+	recoverInitiateSuccessFlash = "An email has been sent. Check inbox for link to reset your password"
+	recoverTokenExpiredFlash    = "Password reset request has expired. Please try again."
+	recoverFailedErrorFlash     = "Password reset has failed. Please contact tech support."
 )
 
 var errRecoveryTokenExpired = errors.New("recovery token expired")
