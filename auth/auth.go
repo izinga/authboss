@@ -83,7 +83,7 @@ func (a *Auth) loginHandlerFunc(ctx *authboss.Context, w http.ResponseWriter, r 
 		key := r.FormValue(a.PrimaryID)
 		password := r.FormValue("secrete")
 		errData := authboss.NewHTMLData(
-			"error", fmt.Sprintf("invalid %s and/or password", a.PrimaryID),
+			"error", fmt.Sprintf("Login Failed. Check %s & password.", a.PrimaryID),
 			"primaryID", a.PrimaryID,
 			"primaryIDValue", key,
 			"showRemember", a.IsLoaded("remember"),
