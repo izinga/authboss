@@ -16,6 +16,7 @@ import (
 	"strings"
 
 	"github.com/izinga/authboss"
+	"github.com/spf13/viper"
 )
 
 var (
@@ -77,9 +78,20 @@ func (t Templates) Render(ctx *authboss.Context, w http.ResponseWriter, r *http.
 		return authboss.RenderErr{TemplateName: name, Data: data, Err: ErrTemplateNotFound}
 	}
 
+	authConfig := viper.GetStringMapString("auth")
+	enableEmailSignup := bool(true)
+	enableGoogleOauth := bool(true)
+	if authConfig["enable_email_signup"] == "no" {
+		enableEmailSignup = false
+	}
+	if authConfig["enable_google_oauth"] == "no" {
+		enableGoogleOauth = false
+	}
 	data.MergeKV(
 		"xsrfName", template.HTML(ctx.XSRFName),
 		"xsrfToken", template.HTML(ctx.XSRFMaker(w, r)),
+		"enableEmailSignup", enableEmailSignup,
+		"enableGoogleOauth", enableGoogleOauth,
 	)
 
 	if ctx.LayoutDataMaker != nil {
@@ -98,7 +110,9 @@ func (t Templates) Render(ctx *authboss.Context, w http.ResponseWriter, r *http.
 	buffer := &bytes.Buffer{}
 	err := tpl.ExecuteTemplate(buffer, tpl.Name(), data)
 	if err != nil {
-		return authboss.RenderErr{TemplateName: tpl.Name(), Data: data, Err: ErrTemplateNotFound}
+		return authboss.RenderErr{TemplateName: tpl.Name(), Data: data,
+			Err: ErrTemplateNotFound,
+		}
 	}
 
 	_, err = io.Copy(w, buffer)
