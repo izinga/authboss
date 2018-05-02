@@ -151,7 +151,7 @@ func (reg *Register) registerPostHandler(ctx *authboss.Context, w http.ResponseW
 	}
 
 	if reg.IsLoaded("confirm") && os.Getenv("confirmable") == "yes" {
-		response.Redirect(ctx, w, r, reg.RegisterOKPath, "Account successfully created, please verify your e-mail address.", "", true)
+		response.Redirect(ctx, w, r, reg.RegisterOKPath, "Account created successfully:Look in your inbox for verification email", "", true)
 		return nil
 	}
 
