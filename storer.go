@@ -18,6 +18,7 @@ import (
 const (
 	StoreEmail    = "email"
 	StoreUsername = "username"
+	StoreName     = "name"
 	StorePassword = "secrete"
 )
 
@@ -270,7 +271,6 @@ func (a Attributes) Bind(strct interface{}, ignoreMissing bool) error {
 	structVal := reflect.ValueOf(strct).Elem()
 	structType = structVal.Type()
 	for k, v := range a {
-
 		k = underToCamel(k)
 
 		if _, has := structType.FieldByName(k); !has && ignoreMissing {

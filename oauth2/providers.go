@@ -4,9 +4,9 @@ import (
 	"encoding/json"
 	"net/http"
 
+	"github.com/izinga/authboss"
 	"golang.org/x/net/context"
 	"golang.org/x/oauth2"
-	"github.com/izinga/authboss"
 )
 
 const (
@@ -17,6 +17,7 @@ const (
 type googleMeResponse struct {
 	ID    string `json:"id"`
 	Email string `json:"email"`
+	Name  string `json:"name"`
 }
 
 // testing
@@ -40,6 +41,7 @@ func Google(ctx context.Context, cfg oauth2.Config, token *oauth2.Token) (authbo
 	return authboss.Attributes{
 		authboss.StoreOAuth2UID: jsonResp.ID,
 		authboss.StoreEmail:     jsonResp.Email,
+		authboss.StoreName:      jsonResp.Name,
 	}, nil
 }
 
