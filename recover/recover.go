@@ -40,7 +40,7 @@ const (
 	tplInitHTMLEmail   = "recover_email.html.tpl"
 	tplInitTextEmail   = "recover_email.txt.tpl"
 
-	recoverInitiateSuccessFlash = "An email with instructions to reset your account password has been send to your inbox"
+	recoverInitiateSuccessFlash = "Link to reset password has been sent to your email"
 	recoverTokenExpiredFlash    = "Password reset request has expired. Please try again."
 	recoverFailedErrorFlash     = "Password reset has failed. Please contact tech support."
 )

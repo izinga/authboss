@@ -94,11 +94,10 @@ func (reg *Register) registerPostHandler(ctx *authboss.Context, w http.ResponseW
 		"password", "confirm_password",
 	}...)
 
-	fmt.Printf("\n\n validationErrs.Map() %+v \n", validationErrs.Map())
 	if user, err := ctx.Storer.Get(key); err != nil && err != authboss.ErrUserNotFound {
 		return err
 	} else if user != nil {
-		validationErrs = append(validationErrs, authboss.FieldError{Name: reg.PrimaryID, Err: errors.New("Already in use")})
+		validationErrs = append(validationErrs, authboss.FieldError{Name: reg.PrimaryID, Err: errors.New("Account with this email address exists")})
 	}
 
 	if len(validationErrs) != 0 {
@@ -112,7 +111,7 @@ func (reg *Register) registerPostHandler(ctx *authboss.Context, w http.ResponseW
 		for _, f := range reg.PreserveFields {
 			data[f] = r.FormValue(f)
 		}
-		fmt.Printf("\n\n data %+v \n", data)
+		// fmt.Printf("\n\n data %+v \n", data)
 		return reg.templates.Render(ctx, w, r, tplRegister, data)
 	}
 	attr, err := authboss.AttributesFromRequest(r) // Attributes from overriden forms
