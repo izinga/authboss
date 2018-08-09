@@ -92,7 +92,7 @@ func (o *OAuth2) oauthInit(ctx *authboss.Context, w http.ResponseWriter, r *http
 
 	provider := strings.ToLower(filepath.Base(r.URL.Path))
 	cfg, ok := o.OAuth2Providers[provider]
-	if !strings.Contains(cfg.OAuth2Config.RedirectURL, o.RootURL) {
+	if !strings.Contains(cfg.OAuth2Config.RedirectURL, o.RootURL) && !strings.Contains(cfg.OAuth2Config.RedirectURL, "http") {
 		cfg.OAuth2Config.RedirectURL = o.RootURL + cfg.OAuth2Config.RedirectURL
 	}
 
