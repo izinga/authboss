@@ -24,6 +24,7 @@ var (
 // OAuth2 module
 type OAuth2 struct {
 	*authboss.Authboss
+	RedirectUrl string
 }
 
 func init() {
@@ -55,10 +56,9 @@ func (o *OAuth2) Routes() authboss.RouteTable {
 		if len(o.MountPath) > 0 {
 			callback = path.Join(o.MountPath, callback)
 		}
-
+		o.RedirectUrl = callback
 		cfg.OAuth2Config.RedirectURL = callback
 	}
-
 	routes["/oauth2/logout"] = o.logout
 
 	return routes
@@ -92,8 +92,9 @@ func (o *OAuth2) oauthInit(ctx *authboss.Context, w http.ResponseWriter, r *http
 
 	provider := strings.ToLower(filepath.Base(r.URL.Path))
 	cfg, ok := o.OAuth2Providers[provider]
-	if !strings.Contains(cfg.OAuth2Config.RedirectURL, o.RootURL) && !strings.Contains(cfg.OAuth2Config.RedirectURL, "http") {
-		cfg.OAuth2Config.RedirectURL = o.RootURL + cfg.OAuth2Config.RedirectURL
+	if !strings.Contains(cfg.OAuth2Config.RedirectURL, o.RootURL) {
+		fmt.Println("We are geneating redirect url", o.RootURL, o.RedirectUrl, cfg.OAuth2Config.RedirectURL)
+		cfg.OAuth2Config.RedirectURL = o.RootURL + o.RedirectUrl
 	}
 
 	if !ok {
