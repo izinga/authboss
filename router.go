@@ -57,7 +57,15 @@ func (c contextRoute) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	c.Authboss.RootURL = protocal + "://" + r.Host
 
 	// Check to make sure we actually need to visit this route
+	if strings.Contains(r.URL.Path, "/auth/recover/complete") {
+		fmt.Println(" we requestetd reset password, so we are logging out logged in user ")
+		ctx.SessionStorer.Del(SessionKey)
+		ctx.CookieStorer.Del(CookieRemember)
+		ctx.SessionStorer.Del(SessionLastAction)
+	}
+
 	if redirectIfLoggedIn(ctx, w, r) {
+
 		return
 	}
 
