@@ -354,7 +354,6 @@ func verifyToken(ctx *authboss.Context, r *http.Request) (attrs authboss.Attribu
 		fmt.Println("Error in expiry ", err)
 		return nil, errRecoveryTokenExpired
 	}
-	fmt.Println("verifyToken is completed ", attrs)
 	return attrs, nil
 }
 

@@ -97,7 +97,7 @@ func (a *Auth) loginHandlerFunc(ctx *authboss.Context, w http.ResponseWriter, r 
 			fmt.Fprintf(ctx.LogWriter, "auth: validate credentials failed: %v\n", err)
 			return a.templates.Render(ctx, w, r, tplLogin, errData)
 		} else if !valid {
-			fmt.Println("We are here in post with valid ", valid)
+
 			if err := a.Callbacks.FireAfter(authboss.EventAuthFail, ctx); err != nil {
 				fmt.Fprintf(ctx.LogWriter, "EventAuthFail callback error'd out: %v\n", err)
 			}
@@ -121,7 +121,6 @@ func (a *Auth) loginHandlerFunc(ctx *authboss.Context, w http.ResponseWriter, r 
 			return nil
 		}
 
-		fmt.Println("We are here in post with key ", key)
 		ctx.SessionStorer.Put(authboss.SessionKey, key)
 		ctx.SessionStorer.Del(authboss.SessionHalfAuthKey)
 		ctx.Values = map[string]string{authboss.CookieRemember: r.FormValue(authboss.CookieRemember)}
