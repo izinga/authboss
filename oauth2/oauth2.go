@@ -8,6 +8,7 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
+	"os"
 	"path"
 	"path/filepath"
 	"strings"
@@ -83,13 +84,11 @@ func (o *OAuth2) Storage() authboss.StorageOptions {
 
 func (o *OAuth2) oauthInit(ctx *authboss.Context, w http.ResponseWriter, r *http.Request) error {
 
-	temp := strings.Split(r.Proto, "/")
-	protocal := "http"
-	if len(temp) > 1 {
-		protocal = strings.ToLower(temp[0])
+	protocal := os.Getenv("PROTOCOL")
+	if protocal == "" {
+		protocal = "http"
 	}
 	o.RootURL = protocal + "://" + r.Host
-
 	provider := strings.ToLower(filepath.Base(r.URL.Path))
 	cfg, ok := o.OAuth2Providers[provider]
 	if !strings.Contains(cfg.OAuth2Config.RedirectURL, o.RootURL) {
