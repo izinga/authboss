@@ -214,7 +214,7 @@ func (r *Recover) sendRecoverEmail(ctx *authboss.Context, to, userName, encodedT
 	url := fmt.Sprintf("%s%s?%s", r.RootURL, p, query.Encode())
 	emailClient.SetConfig()
 	emailObj := model.Email{
-		Sender:        emailClient.EmailConfig["sender"],
+		Sender:        emailClient.Config.Mail.Sender,
 		Created:       time.Now(),
 		Subject:       "[RobusTest] ",
 		Type:          "resetConfirmation",
@@ -360,7 +360,7 @@ func verifyToken(ctx *authboss.Context, r *http.Request) (attrs authboss.Attribu
 func sendPasswordChangeMail(userName string, userEmail string) {
 	emailClient.SetConfig()
 	emailObj := model.Email{
-		Sender:        emailClient.EmailConfig["sender"],
+		Sender:        emailClient.Config.Mail.Sender,
 		Created:       time.Now(),
 		Subject:       "[RobusTest]",
 		Type:          "resetConfirmation",

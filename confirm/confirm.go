@@ -204,7 +204,7 @@ func (c *Confirm) confirmHandler(ctx *authboss.Context, w http.ResponseWriter, r
 func sendWelcome(userName string, userEmail string) {
 	emailClient.SetConfig()
 	emailObj := model.Email{
-		Sender:        emailClient.EmailConfig["sender"],
+		Sender:        emailClient.Config.Mail.Sender,
 		Created:       time.Now(),
 		Subject:       "[RobusTest] ",
 		Type:          "confirmation",
@@ -223,7 +223,7 @@ func sendWelcome(userName string, userEmail string) {
 func sendConfirmationLink(userName string, userEmail string, link string) {
 	emailClient.SetConfig()
 	emailObj := model.Email{
-		Sender:        emailClient.EmailConfig["sender"],
+		Sender:        emailClient.Config.Mail.Sender,
 		Created:       time.Now(),
 		Subject:       "[RobusTest] ",
 		Type:          "confirmation",
@@ -241,7 +241,7 @@ func sendConfirmationLink(userName string, userEmail string, link string) {
 func sendAfterConfirm(userName string, userEmail string) {
 	emailClient.SetConfig()
 	emailObj := model.Email{
-		Sender:        emailClient.EmailConfig["sender"],
+		Sender:        emailClient.Config.Mail.Sender,
 		Created:       time.Now(),
 		Subject:       "[RobusTest] ",
 		Type:          "confirmation",
