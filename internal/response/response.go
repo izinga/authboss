@@ -15,8 +15,9 @@ import (
 	"path/filepath"
 	"strings"
 
+	emailClient "nerve/util/email"
+
 	"github.com/izinga/authboss"
-	"github.com/spf13/viper"
 )
 
 var (
@@ -78,15 +79,10 @@ func (t Templates) Render(ctx *authboss.Context, w http.ResponseWriter, r *http.
 		return authboss.RenderErr{TemplateName: name, Data: data, Err: ErrTemplateNotFound}
 	}
 
-	authConfig := viper.GetStringMapString("auth")
-	enableEmailSignup := bool(true)
-	enableGoogleOauth := bool(true)
-	if authConfig["enable_email_signup"] == "no" {
-		enableEmailSignup = false
-	}
-	if authConfig["enable_google_oauth"] == "no" {
-		enableGoogleOauth = false
-	}
+	emailClient.SetConfig()
+	enableEmailSignup := emailClient.Config.Auth.EnableEmailSignup
+	enableGoogleOauth := emailClient.Config.Auth.EnableGoogleOauth
+
 	data.MergeKV(
 		"xsrfName", template.HTML(ctx.XSRFName),
 		"xsrfToken", template.HTML(ctx.XSRFMaker(w, r)),
