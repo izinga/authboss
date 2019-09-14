@@ -10,7 +10,6 @@ import (
 	"nerve/model"
 	"net/http"
 	"net/url"
-	"os"
 	"path"
 	"time"
 
@@ -125,7 +124,8 @@ func (c *Confirm) afterRegister(ctx *authboss.Context) error {
 	if err != nil {
 		return err
 	}
-	if os.Getenv("confirmable") == "no" {
+	emailClient.SetConfig()
+	if !emailClient.Config.Auth.Confirmable {
 		ctx.User[StoreConfirmToken] = ""
 		ctx.User[StoreConfirmed] = true
 		if err := ctx.SaveUser(); err != nil {

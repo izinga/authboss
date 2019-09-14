@@ -5,7 +5,8 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
-	"os"
+
+	emailClient "nerve/util/email"
 
 	"github.com/izinga/authboss"
 	"github.com/izinga/authboss/internal/response"
@@ -87,6 +88,7 @@ func (reg *Register) registerHandler(ctx *authboss.Context, w http.ResponseWrite
 }
 
 func (reg *Register) registerPostHandler(ctx *authboss.Context, w http.ResponseWriter, r *http.Request) error {
+	emailClient.SetConfig()
 	key := r.FormValue(reg.PrimaryID)
 	password := r.FormValue("password")
 
@@ -149,7 +151,7 @@ func (reg *Register) registerPostHandler(ctx *authboss.Context, w http.ResponseW
 		return err
 	}
 
-	if reg.IsLoaded("confirm") && os.Getenv("confirmable") == "yes" {
+	if reg.IsLoaded("confirm") && emailClient.Config.Auth.Confirmable {
 		response.Redirect(ctx, w, r, reg.RegisterOKPath, "Account created successfully:Look in your inbox for verification email", "", true)
 		return nil
 	}
