@@ -71,8 +71,11 @@ func (r *Register) Storage() authboss.StorageOptions {
 }
 
 func (reg *Register) registerHandler(ctx *authboss.Context, w http.ResponseWriter, r *http.Request) error {
+	emailClient.SetConfig()
+	// enableEmailSignup := emailClient.Config.Auth.EnableEmailSignup
 	switch r.Method {
 	case "GET":
+		fmt.Println(" We are here in call GET ")
 		primaryID := r.FormValue("primaryID")
 
 		data := authboss.HTMLData{
@@ -89,6 +92,9 @@ func (reg *Register) registerHandler(ctx *authboss.Context, w http.ResponseWrite
 
 func (reg *Register) registerPostHandler(ctx *authboss.Context, w http.ResponseWriter, r *http.Request) error {
 	emailClient.SetConfig()
+	if !emailClient.Config.Auth.EnableEmailSignup {
+		return errors.New("Email sign is not allowed")
+	}
 	key := r.FormValue(reg.PrimaryID)
 	password := r.FormValue("password")
 
