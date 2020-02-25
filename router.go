@@ -99,8 +99,8 @@ func (c contextRoute) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		if c.ErrorHandler != nil {
 			c.ErrorHandler.ServeHTTP(w, r)
 		} else {
-			w.WriteHeader(http.StatusInternalServerError)
-			io.WriteString(w, "500 An error has occurred")
+			w.WriteHeader(http.StatusForbidden)
+			io.WriteString(w, err.Error())
 		}
 	}
 }
