@@ -140,8 +140,8 @@ func redirectIfLoggedIn(ctx *Context, w http.ResponseWriter, r *http.Request) (h
 		return false
 	} else if err != nil {
 		fmt.Fprintf(ctx.LogWriter, "error occurred reading current user at %s: %v", r.URL.Path, err)
-		w.WriteHeader(http.StatusInternalServerError)
-		io.WriteString(w, "500 An error has occurred")
+		w.WriteHeader(http.StatusForbidden)
+		io.WriteString(w, err.Error())
 		return true
 	}
 
