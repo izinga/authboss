@@ -93,7 +93,7 @@ func (a *Auth) loginHandlerFunc(ctx *authboss.Context, w http.ResponseWriter, r 
 
 		if valid, err := validateCredentials(ctx, key, password); err != nil {
 
-			errData["error"] = "Internal server error"
+			errData["error"] = err.Error()
 			fmt.Fprintf(ctx.LogWriter, "auth: validate credentials failed: %v\n", err)
 			return a.templates.Render(ctx, w, r, tplLogin, errData)
 		} else if !valid {
