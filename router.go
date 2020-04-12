@@ -47,7 +47,7 @@ type contextRoute struct {
 
 func (c contextRoute) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Instantiate the context
-	fmt.Println("We are routing ")
+	fmt.Println("We are routing ServeHTTP ")
 	ctx := c.Authboss.InitContext(w, r)
 	temp := strings.Split(r.Proto, "/")
 	protocal := "http"
@@ -139,10 +139,10 @@ func redirectIfLoggedIn(ctx *Context, w http.ResponseWriter, r *http.Request) (h
 		ctx.SessionStorer.Del(SessionKey)
 		return false
 	} else if err != nil {
-		fmt.Fprintf(ctx.LogWriter, "error occurred reading current user at %s: %v", r.URL.Path, err)
-		w.WriteHeader(http.StatusForbidden)
-		io.WriteString(w, err.Error())
-		return true
+		// fmt.Fprintf(ctx.LogWriter, "error occurred reading current user at %s: %v", r.URL.Path, err)
+		// w.WriteHeader(http.StatusForbidden)
+		// io.WriteString(w, err.Error())
+		return false
 	}
 
 	if cu != nil {

@@ -163,7 +163,14 @@ func (reg *Register) registerPostHandler(ctx *authboss.Context, w http.ResponseW
 	}
 
 	ctx.SessionStorer.Put(authboss.SessionKey, key)
-	response.Redirect(ctx, w, r, reg.RegisterOKPath, "Account successfully created, you are now logged in.", "", true)
+	_, err1 := reg.Callbacks.FireBefore(authboss.EventGetUserSession, ctx)
+	flashSuccess := "Account successfully created"
+	flashError := ""
+	if err1 != nil {
+		flashSuccess = ""
+		flashError = err.Error()
+	}
+	response.Redirect(ctx, w, r, reg.RegisterOKPath, flashSuccess, flashError, true)
 
 	return nil
 }
