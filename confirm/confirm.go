@@ -18,7 +18,7 @@ import (
 
 	emailClient "nerve/util/email"
 
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/v2/logrus"
 )
 
 // Storer and FormValue constants
