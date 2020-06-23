@@ -7,18 +7,19 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"nerve/model"
 	"net/http"
 	"net/url"
 	"path"
 	"time"
 
+	"github.com/izinga/nerve/model"
+
 	"github.com/izinga/authboss"
 	"github.com/izinga/authboss/internal/response"
 
-	emailClient "nerve/util/email"
+	emailClient "github.com/izinga/nerve/util/email"
 
-	log "github.com/Sirupsen/logrus"
+	log "github.com/sirupsen/logrus"
 )
 
 // Storer and FormValue constants
