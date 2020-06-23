@@ -3,9 +3,7 @@ module github.com/izinga/authboss
 go 1.14
 
 replace github.com/izinga/nerve => /Users/omnarayan/work/go/src/nerve
-
 replace github.com/izinga/nerve/model => /Users/omnarayan/work/go/src/nerve/model
-
 replace github.com/izinga/nerve/util/email => /Users/omnarayan/work/go/src/nerve/util/email
 
 // replace github.com/Sirupsen/logrus => github.com/sirupsen/logrus
