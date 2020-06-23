@@ -7,17 +7,14 @@ import (
 	"encoding/base64"
 	"errors"
 	"fmt"
-	"nerve/model"
-	emailClient "nerve/util/email"
 	"net/http"
 	"net/url"
 	"path"
 	"time"
 
-<<<<<<< HEAD
-	log "github.com/sirupsen/logrus"
-=======
->>>>>>> 2101293561fcddbdd28ae1ee11231978dd800389
+	"gitlab.com/izinga/nerve/model"
+	emailClient "gitlab.com/izinga/nerve/util/email"
+
 	"github.com/izinga/authboss"
 	"github.com/izinga/authboss/internal/response"
 	log "github.com/sirupsen/logrus"

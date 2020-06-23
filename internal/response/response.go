@@ -15,7 +15,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	emailClient "nerve/util/email"
+	emailClient "gitlab.com/izinga/nerve/util/email"
 
 	"github.com/izinga/authboss"
 )
