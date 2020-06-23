@@ -12,12 +12,12 @@ import (
 	"path"
 	"time"
 
-	"github.com/izinga/nerve/model"
+	"gitlab.com/izinga/nerve/model"
 
 	"github.com/izinga/authboss"
 	"github.com/izinga/authboss/internal/response"
 
-	emailClient "github.com/izinga/nerve/util/email"
+	emailClient "gitlab.com/izinga/nerve/util/email"
 
 	log "github.com/sirupsen/logrus"
 )
