@@ -3,6 +3,7 @@ module github.com/izinga/authboss
 go 1.14
 
 replace github.com/izinga/nerve => /Users/omnarayan/work/go/src/nerve
+
 // replace github.com/Sirupsen/logrus => github.com/sirupsen/logrus
 require (
 	github.com/sirupsen/logrus v1.6.0
