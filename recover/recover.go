@@ -14,9 +14,13 @@ import (
 	"path"
 	"time"
 
+<<<<<<< HEAD
 	log "github.com/sirupsen/logrus"
+=======
+>>>>>>> 2101293561fcddbdd28ae1ee11231978dd800389
 	"github.com/izinga/authboss"
 	"github.com/izinga/authboss/internal/response"
+	log "github.com/sirupsen/logrus"
 	"golang.org/x/crypto/bcrypt"
 )
 
