@@ -1,4 +1,4 @@
-module gitlab.com/izinga/authboss
+module github.com/izinga/authboss
 
 go 1.14
 
