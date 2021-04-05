@@ -12,8 +12,8 @@ import (
 	"path"
 	"time"
 
-	"gitlab.com/izinga/nerve/model"
-	emailClient "gitlab.com/izinga/nerve/util/email"
+	"github.com/izinga/nerve/model"
+	emailClient "github.com/izinga/nerve/util/email"
 
 	"github.com/izinga/authboss"
 	"github.com/izinga/authboss/internal/response"

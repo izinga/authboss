@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
-	emailClient "gitlab.com/izinga/nerve/util/email"
+	emailClient "github.com/izinga/nerve/util/email"
 
 	"github.com/izinga/authboss"
 	"github.com/izinga/authboss/internal/response"
