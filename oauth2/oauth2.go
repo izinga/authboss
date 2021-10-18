@@ -84,7 +84,7 @@ func (o *OAuth2) Storage() authboss.StorageOptions {
 
 func (o *OAuth2) oauthInit(ctx *authboss.Context, w http.ResponseWriter, r *http.Request) error {
 
-	protocal := os.Getenv("PROTOCOL")
+	protocal := os.Getenv("GOOGLE_AUTH_PROTOCOL")
 	if protocal == "" {
 		protocal = "http"
 	}
