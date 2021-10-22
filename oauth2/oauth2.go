@@ -86,7 +86,7 @@ func (o *OAuth2) oauthInit(ctx *authboss.Context, w http.ResponseWriter, r *http
 
 	protocal := os.Getenv("GOOGLE_AUTH_PROTOCOL")
 	if protocal == "" {
-		protocal = "http"
+		protocal = "https"
 	}
 	o.RootURL = protocal + "://" + r.Host
 	provider := strings.ToLower(filepath.Base(r.URL.Path))
