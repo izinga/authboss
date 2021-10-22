@@ -84,10 +84,11 @@ func (o *OAuth2) Storage() authboss.StorageOptions {
 
 func (o *OAuth2) oauthInit(ctx *authboss.Context, w http.ResponseWriter, r *http.Request) error {
 
-	protocal := os.Getenv("GOOGLE_AUTH_PROTOCOL")
+	protocal := os.Getenv("ROBUSTEST_GOOGLE_AUTH_PROTOCOL")
 	if protocal == "" {
 		protocal = "https"
 	}
+
 	o.RootURL = protocal + "://" + r.Host
 	provider := strings.ToLower(filepath.Base(r.URL.Path))
 	cfg, ok := o.OAuth2Providers[provider]
