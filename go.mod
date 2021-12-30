@@ -6,7 +6,7 @@ go 1.14
 
 // replace github.com/Sirupsen/logrus => github.com/sirupsen/logrus
 require (
-	github.com/izinga/nerve v0.0.0-20211230015507-9dbc785a7a0a
+	github.com/izinga/nerve v0.0.0-20211230020347-fbe80007a802
 	github.com/sirupsen/logrus v1.8.1
 	golang.org/x/crypto v0.0.0-20210415154028-4f45737414dc
 	golang.org/x/net v0.0.0-20210805182204-aaa1db679c0d
