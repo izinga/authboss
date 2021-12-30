@@ -392,10 +392,6 @@ github.com/izinga/mgo v1.0.4/go.mod h1:yPWnpOVRtqmWcWqEFkO2p5gHpHz36y3o+FCYERSc5
 github.com/izinga/mgo v1.0.7/go.mod h1:yPWnpOVRtqmWcWqEFkO2p5gHpHz36y3o+FCYERSc5Tk=
 github.com/izinga/mgo v1.0.9 h1:mqHSEWSyrnBP6XHcNJlyzaaGffcfVv+i5RjQNlm6oac=
 github.com/izinga/mgo v1.0.9/go.mod h1:yPWnpOVRtqmWcWqEFkO2p5gHpHz36y3o+FCYERSc5Tk=
-github.com/izinga/minquery v1.1.12 h1:JQbNY2kQp1igCoQJMckgZahT/E0NmRDKHKg58r2QsQk=
-github.com/izinga/minquery v1.1.12/go.mod h1:zb+rSUH5Dpf3ANqvmjgHHRv5a4o8jzPFJknCHlACEyA=
-github.com/izinga/nerve v0.0.0-20211230024953-0fc72786ce76 h1:CCVH4DF3WHAEq941+9lIDIIxP98paIc/AkeMcYwnHa8=
-github.com/izinga/nerve v0.0.0-20211230024953-0fc72786ce76/go.mod h1:geDtl/GCB6/sqbG0nmwgy5MoAADpH8mo/Tiavaz+wRc=
 github.com/izinga/reportportal v0.0.0-20210430114300-ed05d33f9c7f h1:W04U4aASxkZlaj18zYo9q1TduUfn0OgQ8dE5i0Jfgrc=
 github.com/izinga/reportportal v0.0.0-20210430114300-ed05d33f9c7f/go.mod h1:D467O/yffYC7bAVhekaYJLMXSPBAYrOcRQ9XMvyu61U=
 github.com/izinga/roku v0.0.0-20210405203925-7d7b4f175bf7 h1:NARUO3x0j24L7ZqsMxEA8DDc2R+Cqg0mtn7UeyDA8nQ=
