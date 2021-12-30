@@ -378,6 +378,7 @@ github.com/izinga/authboss v1.3.3/go.mod h1:sQcZHUDjLq0KHAWiUfkLO4gOkz9yVGQ87LHp
 github.com/izinga/authboss v1.3.9/go.mod h1:6xrJjdycmXOyFYq5G2iAmPdB2P6VeQlcA63Immd9LAE=
 github.com/izinga/authboss v1.4.1/go.mod h1:Uq3xleCfaJ1heRoC/tI/R1dailcAm9BcXACgQMMQZcE=
 github.com/izinga/authboss v1.4.2/go.mod h1:M+dT3G8U16BLHnE4fq+myGDo3lBXNbJ5SFrB6ko1+QU=
+github.com/izinga/authboss v1.4.6/go.mod h1:WVhk7RN7FfkIDgy9DFBnFlSdlJdMxlqI/rE/qGbiytY=
 github.com/izinga/chromecast v0.0.0-20210829182151-40fdfd13e1c4 h1:Em8VIAU30ACLUp/rcs4fYq5E2ruvQDOnButzAavuO/c=
 github.com/izinga/chromecast v0.0.0-20210829182151-40fdfd13e1c4/go.mod h1:VLZGneVdXJ84Vh0Z2r7QYNbYnPoKh2vuhGC+2HoDeRU=
 github.com/izinga/gojsonq v1.9.1 h1:MvwJcAs0/Tu4C0BqP518XiX4NjXtFx3oZcBrxbuDTus=
@@ -392,6 +393,10 @@ github.com/izinga/mgo v1.0.4/go.mod h1:yPWnpOVRtqmWcWqEFkO2p5gHpHz36y3o+FCYERSc5
 github.com/izinga/mgo v1.0.7/go.mod h1:yPWnpOVRtqmWcWqEFkO2p5gHpHz36y3o+FCYERSc5Tk=
 github.com/izinga/mgo v1.0.9 h1:mqHSEWSyrnBP6XHcNJlyzaaGffcfVv+i5RjQNlm6oac=
 github.com/izinga/mgo v1.0.9/go.mod h1:yPWnpOVRtqmWcWqEFkO2p5gHpHz36y3o+FCYERSc5Tk=
+github.com/izinga/minquery v1.1.12 h1:JQbNY2kQp1igCoQJMckgZahT/E0NmRDKHKg58r2QsQk=
+github.com/izinga/minquery v1.1.12/go.mod h1:zb+rSUH5Dpf3ANqvmjgHHRv5a4o8jzPFJknCHlACEyA=
+github.com/izinga/nerve v0.0.0-20211230030001-be5267b311d9 h1:P6WshcycwCUzz7sUvY9/ZdivfV/G3mOWLcNBDPPKgaY=
+github.com/izinga/nerve v0.0.0-20211230030001-be5267b311d9/go.mod h1:WwbL8Es9JYkW9ZA96xOVhyuosiE94zXKgPKAM1K1bJo=
 github.com/izinga/reportportal v0.0.0-20210430114300-ed05d33f9c7f h1:W04U4aASxkZlaj18zYo9q1TduUfn0OgQ8dE5i0Jfgrc=
 github.com/izinga/reportportal v0.0.0-20210430114300-ed05d33f9c7f/go.mod h1:D467O/yffYC7bAVhekaYJLMXSPBAYrOcRQ9XMvyu61U=
 github.com/izinga/roku v0.0.0-20210405203925-7d7b4f175bf7 h1:NARUO3x0j24L7ZqsMxEA8DDc2R+Cqg0mtn7UeyDA8nQ=
