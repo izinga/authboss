@@ -95,6 +95,7 @@ func (reg *Register) registerPostHandler(ctx *authboss.Context, w http.ResponseW
 	if !emailClient.Config.Auth.EnableEmailSignup {
 		return errors.New("Email sign is not allowed")
 	}
+
 	key := r.FormValue(reg.PrimaryID)
 	password := r.FormValue("password")
 

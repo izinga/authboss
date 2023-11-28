@@ -8,6 +8,7 @@ import (
 
 	"github.com/izinga/authboss"
 	"github.com/izinga/authboss/internal/response"
+	emailClient "github.com/izinga/nerve/util/email"
 	"golang.org/x/crypto/bcrypt"
 )
 
@@ -69,6 +70,8 @@ func (a *Auth) Storage() authboss.StorageOptions {
 }
 
 func (a *Auth) loginHandlerFunc(ctx *authboss.Context, w http.ResponseWriter, r *http.Request) error {
+	emailClient.SetConfig()
+
 	switch r.Method {
 	case methodGET:
 		data := authboss.NewHTMLData(
@@ -80,6 +83,10 @@ func (a *Auth) loginHandlerFunc(ctx *authboss.Context, w http.ResponseWriter, r 
 		)
 		return a.templates.Render(ctx, w, r, tplLogin, data)
 	case methodPOST:
+		if emailClient.Config.Auth.DisableEmailSignin {
+			// fmt.Println("emailClient.Config.Auth.DisableEmailSignin ", emailClient.Config.Auth.DisableEmailSignin)
+			return errors.New("Email sign in is not allowed")
+		}
 		key := r.FormValue(a.PrimaryID)
 		password := r.FormValue("secrete")
 		errData := authboss.NewHTMLData(

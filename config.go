@@ -153,6 +153,9 @@ type Config struct {
 	MailMaker MailMaker
 	// ContextProvider provides a context for a given request
 	ContextProvider func(*http.Request) context.Context
+
+	DisableEmailSignup bool
+	DisableEmailSignin bool
 }
 
 // Defaults sets the configuration's default values.
