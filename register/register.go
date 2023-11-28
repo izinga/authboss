@@ -93,7 +93,7 @@ func (reg *Register) registerHandler(ctx *authboss.Context, w http.ResponseWrite
 func (reg *Register) registerPostHandler(ctx *authboss.Context, w http.ResponseWriter, r *http.Request) error {
 	emailClient.SetConfig()
 	if !emailClient.Config.Auth.EnableEmailSignup {
-		return errors.New("Email sign is not allowed")
+		return errors.New("Signup and Signin using email is disabled by Administrator")
 	}
 
 	key := r.FormValue(reg.PrimaryID)

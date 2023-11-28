@@ -85,7 +85,7 @@ func (a *Auth) loginHandlerFunc(ctx *authboss.Context, w http.ResponseWriter, r 
 	case methodPOST:
 		if emailClient.Config.Auth.DisableEmailSignin {
 			// fmt.Println("emailClient.Config.Auth.DisableEmailSignin ", emailClient.Config.Auth.DisableEmailSignin)
-			return errors.New("Email sign in is not allowed")
+			return errors.New("Signup and Signin using email is disabled by Administrator")
 		}
 		key := r.FormValue(a.PrimaryID)
 		password := r.FormValue("secrete")

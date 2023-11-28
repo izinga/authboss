@@ -131,7 +131,7 @@ func (rec *Recover) startHandlerFunc(ctx *authboss.Context, w http.ResponseWrite
 	emailClient.SetConfig()
 	if emailClient.Config.Auth.DisableEmailSignin {
 		// fmt.Println("emailClient.Config.Auth.DisableEmailSignin ", emailClient.Config.Auth.DisableEmailSignin)
-		return errors.New("email recover not allowed")
+		return errors.New("Signup and Signin using email is disabled by Administrator")
 	}
 	switch r.Method {
 	case methodGET:
