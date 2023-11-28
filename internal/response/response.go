@@ -82,11 +82,13 @@ func (t Templates) Render(ctx *authboss.Context, w http.ResponseWriter, r *http.
 	emailClient.SetConfig()
 	enableEmailSignup := emailClient.Config.Auth.EnableEmailSignup
 	enableGoogleOauth := emailClient.Config.Auth.EnableGoogleOauth
+	disableEmailSignin := emailClient.Config.Auth.DisableEmailSignin
 
 	data.MergeKV(
 		"xsrfName", template.HTML(ctx.XSRFName),
 		"xsrfToken", template.HTML(ctx.XSRFMaker(w, r)),
 		"enableEmailSignup", enableEmailSignup,
+		"disableEmailSignin", disableEmailSignin,
 		"enableGoogleOauth", enableGoogleOauth,
 	)
 

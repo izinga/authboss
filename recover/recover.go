@@ -128,6 +128,11 @@ func (r *Recover) Storage() authboss.StorageOptions {
 }
 
 func (rec *Recover) startHandlerFunc(ctx *authboss.Context, w http.ResponseWriter, r *http.Request) error {
+	emailClient.SetConfig()
+	if emailClient.Config.Auth.DisableEmailSignin {
+		// fmt.Println("emailClient.Config.Auth.DisableEmailSignin ", emailClient.Config.Auth.DisableEmailSignin)
+		return errors.New("email recover not allowed")
+	}
 	switch r.Method {
 	case methodGET:
 		data := authboss.NewHTMLData(
