@@ -65,7 +65,7 @@ func (o *OAuth2) Routes() authboss.RouteTable {
 	return routes
 }
 
-//getRootUrl get root url
+// getRootUrl get root url
 func (o *OAuth2) getRootUrl() string {
 	return o.RootURL
 }
@@ -142,11 +142,14 @@ func (o *OAuth2) oauthInit(ctx *authboss.Context, w http.ResponseWriter, r *http
 var exchanger = (*oauth2.Config).Exchange
 
 func (o *OAuth2) oauthCallback(ctx *authboss.Context, w http.ResponseWriter, r *http.Request) error {
+
+	fmt.Println("oauthCallback url ", r.URL.String())
 	provider := strings.ToLower(filepath.Base(r.URL.Path))
 
 	sessState, err := ctx.SessionStorer.GetErr(authboss.SessionOAuth2State)
 	ctx.SessionStorer.Del(authboss.SessionOAuth2State)
 	if err != nil {
+		fmt.Println("oauthCallback error  ", err)
 		return err
 	}
 
@@ -155,25 +158,28 @@ func (o *OAuth2) oauthCallback(ctx *authboss.Context, w http.ResponseWriter, r *
 	var values map[string]string
 	if ok {
 		if err := json.Unmarshal([]byte(sessValues), &values); err != nil {
-			return err
+			fmt.Println("oauthCallback Unmarshal  ", err)
+			// return err
 		}
 	}
 
 	hasErr := r.FormValue("error")
 	if len(hasErr) > 0 {
+		fmt.Println("oauthCallback Unmarshal hasErr  ")
 		if err := o.Callbacks.FireAfter(authboss.EventOAuthFail, ctx); err != nil {
-			return err
+			// return err
 		}
 
-		return authboss.ErrAndRedirect{
-			Err:        errors.New(r.FormValue("error_reason")),
-			Location:   o.AuthLoginFailPath,
-			FlashError: fmt.Sprintf("%s login cancelled or failed.", strings.Title(provider)),
-		}
+		// return authboss.ErrAndRedirect{
+		// 	Err:        errors.New(r.FormValue("error_reason")),
+		// 	Location:   o.AuthLoginFailPath,
+		// 	FlashError: fmt.Sprintf("%s login cancelled or failed.", strings.Title(provider)),
+		// }
 	}
 
 	cfg, ok := o.OAuth2Providers[provider]
 	if !ok {
+		fmt.Println("oauthCallback Unmarshal OAuth2Providers  ", fmt.Errorf("OAuth2 provider %q not found", provider))
 		return fmt.Errorf("OAuth2 provider %q not found", provider)
 	}
 
@@ -181,6 +187,7 @@ func (o *OAuth2) oauthCallback(ctx *authboss.Context, w http.ResponseWriter, r *
 	state := r.FormValue(authboss.FormValueOAuth2State)
 	splState := strings.Split(state, ";")
 	if len(splState) == 0 || splState[0] != sessState {
+		fmt.Println("oauthCallback Unmarshal errOAuthStateValidation  ", errOAuthStateValidation)
 		return errOAuthStateValidation
 	}
 
@@ -188,19 +195,22 @@ func (o *OAuth2) oauthCallback(ctx *authboss.Context, w http.ResponseWriter, r *
 	code := r.FormValue("code")
 	token, err := exchanger(cfg.OAuth2Config, o.Config.ContextProvider(r), code)
 	if err != nil {
+		fmt.Println("oauthCallback Unmarshal errOAuthStateValidation  ", fmt.Errorf("Could not validate oauth2 code: %v", err))
 		return fmt.Errorf("Could not validate oauth2 code: %v", err)
 	}
 
 	user, err := cfg.Callback(o.Config.ContextProvider(r), *cfg.OAuth2Config, token)
 	if err != nil {
+		fmt.Println("oauthCallback Unmarshal Callback  ", err)
 		return err
 	}
 
 	// OAuth2UID is required.
 	uid, err := user.StringErr(authboss.StoreOAuth2UID)
-	if err != nil {
-		return err
-	}
+	fmt.Println("oauthCallback Unmarshal StringErr  ", err)
+	// if err != nil {
+	// 	return err
+	// }
 
 	user[authboss.StoreOAuth2UID] = uid
 	user[authboss.StoreOAuth2Provider] = provider
@@ -211,7 +221,7 @@ func (o *OAuth2) oauthCallback(ctx *authboss.Context, w http.ResponseWriter, r *
 	}
 
 	if err = ctx.OAuth2Storer.PutOAuth(uid, provider, user); err != nil {
-		fmt.Println(" We got error here ", err)
+		fmt.Println("oauthCallback We got error here ", err)
 
 		sf := "Sign in Failed. Try signing in with email address of an authorised domain."
 		response.Redirect(ctx, w, r, o.AuthLoginOKPath, sf, "", false)
@@ -223,7 +233,8 @@ func (o *OAuth2) oauthCallback(ctx *authboss.Context, w http.ResponseWriter, r *
 	ctx.SessionStorer.Del(authboss.SessionHalfAuthKey)
 
 	if err = o.Callbacks.FireAfter(authboss.EventOAuth, ctx); err != nil {
-		return nil
+		fmt.Println("oauthCallback We got error FireAfter ", err)
+		// return nil
 	}
 
 	ctx.SessionStorer.Del(authboss.SessionOAuth2Params)
@@ -243,8 +254,9 @@ func (o *OAuth2) oauthCallback(ctx *authboss.Context, w http.ResponseWriter, r *
 	if len(query) > 0 {
 		redirect = fmt.Sprintf("%s?%s", redirect, query.Encode())
 	}
-
-	sf := fmt.Sprintf("Logged in successfully with %s.", strings.Title(provider))
+	fmt.Println(fmt.Sprintf(" oauthCallback Logged in successfully with %s.", strings.Title(provider)))
+	fmt.Println("oauthCallback We are redirecting to ", redirect)
+	sf := fmt.Sprintf("oauthCallback Logged in successfully with %s.", strings.Title(provider))
 	response.Redirect(ctx, w, r, redirect, sf, "", false)
 	return nil
 }

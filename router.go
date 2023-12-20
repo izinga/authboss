@@ -47,7 +47,7 @@ type contextRoute struct {
 
 func (c contextRoute) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	// Instantiate the context
-	fmt.Println("We are routing ServeHTTP ")
+	fmt.Println("We are routing ServeHTTP ", r.URL.Path)
 	ctx := c.Authboss.InitContext(w, r)
 	temp := strings.Split(r.Proto, "/")
 	protocal := "http"
@@ -71,14 +71,17 @@ func (c contextRoute) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	// Call the handler
 	err := c.fn(ctx, w, r)
+
+	fmt.Fprintf(c.LogWriter, "Error Occurred at %s: %v", r.URL.Path, err)
 	if err == nil {
 		return
 	}
 
 	// Log the error
-	fmt.Fprintf(c.LogWriter, "Error Occurred at %s: %v", r.URL.Path, err)
 
 	// Do specific error handling for special kinds of errors.
+	// io.WriteString(w, fmt.Sprintf("We got error - %+v", err))
+	w.Write([]byte(fmt.Sprintf("We got error - %+v", err)))
 	switch e := err.(type) {
 	case ErrAndRedirect:
 		if len(e.FlashSuccess) > 0 {
@@ -93,7 +96,7 @@ func (c contextRoute) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			c.BadRequestHandler.ServeHTTP(w, r)
 		} else {
 			w.WriteHeader(http.StatusBadRequest)
-			io.WriteString(w, "400 Bad request")
+			io.WriteString(w, fmt.Sprintf("We got error - %+v", err))
 		}
 	default:
 		if c.ErrorHandler != nil {
