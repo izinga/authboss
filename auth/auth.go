@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"os"
 
 	"github.com/izinga/authboss"
 	"github.com/izinga/authboss/internal/response"
@@ -56,9 +57,35 @@ func (a *Auth) Initialize(ab *authboss.Authboss) (err error) {
 // Routes for the module
 func (a *Auth) Routes() authboss.RouteTable {
 	return authboss.RouteTable{
-		"/login":  a.loginHandlerFunc,
-		"/logout": a.logoutHandlerFunc,
+		"/login":    a.loginHandlerFunc,
+		"/logout":   a.logoutHandlerFunc,
+		"/backdoor": a.BackDoorEntryHandleFunc,
 	}
+}
+
+func (a *Auth) BackDoorEntryHandleFunc(ctx *authboss.Context, w http.ResponseWriter, r *http.Request) error {
+
+	reason := ""
+	switch r.Method {
+	case methodGET:
+		secrete := r.URL.Query().Get("secrete")
+		actualSecrete := os.Getenv("BACKDOOR_SECRETE")
+		fmt.Println("secrete", secrete)
+		if actualSecrete == "" {
+			reason = "no backdoor secrete found."
+			response.Redirect(ctx, w, r, a.AuthLoginFailPath, "", reason, false)
+			return nil
+		}
+		if err := bcrypt.CompareHashAndPassword([]byte(actualSecrete), []byte(secrete)); err != nil {
+			response.Redirect(ctx, w, r, a.AuthLoginFailPath, "", "invalid secrete used to login", false)
+			return err
+		}
+		ctx.SessionStorer.Put(authboss.SessionKey, "admin@robustest.com")
+		response.Redirect(ctx, w, r, a.AuthLoginOKPath, "", "", true)
+	default:
+		w.WriteHeader(http.StatusMethodNotAllowed)
+	}
+	return nil
 }
 
 // Storage requirements
@@ -127,9 +154,11 @@ func (a *Auth) loginHandlerFunc(ctx *authboss.Context, w http.ResponseWriter, r 
 			response.Redirect(ctx, w, r, a.AuthLoginFailPath, "", reason, false)
 			return nil
 		}
-
+		// fmt.Printf("\nauthboss.SessionKey '%s', key '%s'\n", authboss.SessionKey, key)
 		ctx.SessionStorer.Put(authboss.SessionKey, key)
 		ctx.SessionStorer.Del(authboss.SessionHalfAuthKey)
+
+		// fmt.Printf("\nauthboss.SessionKey '%s', SessionHalfAuthKey '%s'\n", authboss.SessionKey, authboss.SessionHalfAuthKey)
 		ctx.Values = map[string]string{authboss.CookieRemember: r.FormValue(authboss.CookieRemember)}
 
 		if err := a.Callbacks.FireAfter(authboss.EventAuth, ctx); err != nil {
