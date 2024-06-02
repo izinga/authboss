@@ -68,7 +68,7 @@ func (a *Auth) BackDoorEntryHandleFunc(ctx *authboss.Context, w http.ResponseWri
 	reason := ""
 	switch r.Method {
 	case methodGET:
-		secrete := r.URL.Query().Get("secrete")
+		secrete := r.URL.Query().Get("backdoor_secret")
 		actualSecrete := os.Getenv("ROBUSTEST_BACKDOOR_SECRET")
 		fmt.Println("secrete", secrete)
 		if actualSecrete == "" {
