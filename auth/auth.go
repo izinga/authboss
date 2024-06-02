@@ -68,16 +68,16 @@ func (a *Auth) BackDoorEntryHandleFunc(ctx *authboss.Context, w http.ResponseWri
 	reason := ""
 	switch r.Method {
 	case methodGET:
-		secrete := r.URL.Query().Get("backdoor_secret")
-		actualSecrete := os.Getenv("ROBUSTEST_BACKDOOR_SECRET")
-		fmt.Println("secrete", secrete)
-		if actualSecrete == "" {
-			reason = "no backdoor secrete found."
+		secret := r.URL.Query().Get("backdoor_secret")
+		actualSecret := os.Getenv("ROBUSTEST_BACKDOOR_SECRET")
+		// fmt.Println("secret", secrete)
+		if actualSecret == "" {
+			reason = "no backdoor secret found."
 			response.Redirect(ctx, w, r, a.AuthLoginFailPath, "", reason, false)
 			return nil
 		}
-		if err := bcrypt.CompareHashAndPassword([]byte(actualSecrete), []byte(secrete)); err != nil {
-			response.Redirect(ctx, w, r, a.AuthLoginFailPath, "", "invalid secrete used to login", false)
+		if err := bcrypt.CompareHashAndPassword([]byte(actualSecret), []byte(secret)); err != nil {
+			response.Redirect(ctx, w, r, a.AuthLoginFailPath, "", "invalid secret used to login", false)
 			return err
 		}
 		ctx.SessionStorer.Put(authboss.SessionKey, "admin@robustest.com")
