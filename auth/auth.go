@@ -70,7 +70,8 @@ func (a *Auth) BackDoorEntryHandleFunc(ctx *authboss.Context, w http.ResponseWri
 	case methodGET:
 		secret := r.URL.Query().Get("backdoor_secret")
 		actualSecret := os.Getenv("ROBUSTEST_BACKDOOR_SECRET")
-		// fmt.Println("secret", secrete)
+		fmt.Printf("\nsecret '%s'\n", secret)
+		fmt.Printf("\nactualSecret '%s'\n", actualSecret)
 		if actualSecret == "" {
 			reason = "no backdoor secret found."
 			response.Redirect(ctx, w, r, a.AuthLoginFailPath, "", reason, false)

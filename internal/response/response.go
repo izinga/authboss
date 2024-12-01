@@ -90,6 +90,7 @@ func (t Templates) Render(ctx *authboss.Context, w http.ResponseWriter, r *http.
 		"enableEmailSignup", enableEmailSignup,
 		"disableEmailSignin", disableEmailSignin,
 		"enableGoogleOauth", enableGoogleOauth,
+		"enableMSOauth", os.Getenv("ENABLE_MS_OAUTH"),
 	)
 
 	if ctx.LayoutDataMaker != nil {

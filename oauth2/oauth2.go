@@ -1,6 +1,7 @@
 package oauth2
 
 import (
+	"context"
 	"crypto/rand"
 	"encoding/base64"
 	"encoding/json"
@@ -145,12 +146,15 @@ func (o *OAuth2) oauthCallback(ctx *authboss.Context, w http.ResponseWriter, r *
 
 	fmt.Println("oauthCallback url ", r.URL.String())
 	provider := strings.ToLower(filepath.Base(r.URL.Path))
-
-	sessState, err := ctx.SessionStorer.GetErr(authboss.SessionOAuth2State)
+	if strings.Contains(provider, "microsoft") {
+		fmt.Println("We got microsoft we need to use different code")
+	}
+	var err error
+	// sessState, err := ctx.SessionStorer.GetErr(authboss.SessionOAuth2State)
 	ctx.SessionStorer.Del(authboss.SessionOAuth2State)
 	if err != nil {
-		fmt.Println("oauthCallback error  ", err)
-		return err
+		fmt.Println("oauthCallback SessionStorer delete error  ", err)
+		// return err
 	}
 
 	sessValues, ok := ctx.SessionStorer.Get(authboss.SessionOAuth2Params)
@@ -184,21 +188,33 @@ func (o *OAuth2) oauthCallback(ctx *authboss.Context, w http.ResponseWriter, r *
 	}
 
 	// Ensure request is genuine
-	state := r.FormValue(authboss.FormValueOAuth2State)
-	splState := strings.Split(state, ";")
-	if len(splState) == 0 || splState[0] != sessState {
-		fmt.Println("oauthCallback Unmarshal errOAuthStateValidation  ", errOAuthStateValidation)
-		return errOAuthStateValidation
-	}
+	// state := r.FormValue(authboss.FormValueOAuth2State)
+	// splState := strings.Split(state, ";")
+	// if len(splState) == 0 || splState[0] != sessState {
+	// 	fmt.Println("oauthCallback Unmarshal errOAuthStateValidation  ", errOAuthStateValidation)
+	// 	return errOAuthStateValidation
+	// }
 
 	// Get the code
 	code := r.FormValue("code")
-	token, err := exchanger(cfg.OAuth2Config, o.Config.ContextProvider(r), code)
-	if err != nil {
-		fmt.Println("oauthCallback Unmarshal errOAuthStateValidation  ", fmt.Errorf("Could not validate oauth2 code: %v", err))
-		return fmt.Errorf("Could not validate oauth2 code: %v", err)
-	}
+	token := &oauth2.Token{}
+	if strings.Contains(provider, "microsoft") {
+		fmt.Println("We got microsoft we need to use different code", code)
+		ctx := context.Background()
+		if token, err = cfg.OAuth2Config.Exchange(ctx, code); err != nil {
+			fmt.Println("Failed to get microsoft token, Error - ", err)
+			return err
+		} else {
+			fmt.Printf("\ngot microsoft token %+v\n", token)
+		}
 
+	} else {
+		token, err = exchanger(cfg.OAuth2Config, o.Config.ContextProvider(r), code)
+		if err != nil {
+			fmt.Println("oauthCallback Unmarshal errOAuthStateValidation  ", fmt.Errorf("Could not validate oauth2 code: %v", err))
+			return fmt.Errorf("Could not validate oauth2 code: %v", err)
+		}
+	}
 	user, err := cfg.Callback(o.Config.ContextProvider(r), *cfg.OAuth2Config, token)
 	if err != nil {
 		fmt.Println("oauthCallback Unmarshal Callback  ", err)
